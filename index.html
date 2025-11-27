@@ -1,93 +1,203 @@
-
 <!DOCTYPE html>
-<html>
+<html lang="id">
 <head>
-    <title>Dashboard Monitoring Listrik</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IOT Dashboard - Arus DC Real-Time</title>
+    <!-- Library Chart.js untuk Grafik -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
+    
     <style>
-        body { font-family: Arial, sans-serif; margin: 40px; text-align: center; }
-        h1 { color: #2c3e50; }
-        img { max-width: 100%; height: auto; border: 1px solid #ddd; border-radius: 5px; }
-        .container { max-width: 800px; margin: auto; }
-        table { margin: auto; border-collapse: collapse; width: 80%; }
-        th, td { padding: 8px; text-align: center; border-bottom: 1px solid #ddd; }
-        th { background-color: #f2f2f2; }
+        /* Gaya Tampilan (CSS) agar terlihat bagus */
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background-color: #f4f7f6;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+        h1 { color: #2c3e50; margin-bottom: 5px; }
+        p { color: #7f8c8d; }
+
+        /* Status Badge */
+        .badge {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: bold;
+            color: white;
+            margin-bottom: 20px;
+        }
+        .status-ok { background-color: #2ecc71; } /* Hijau */
+        .status-err { background-color: #e74c3c; } /* Merah */
+        .status-wait { background-color: #f1c40f; color: #333; } /* Kuning */
+
+        /* Kotak Meteran Digital */
+        .meter-card {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            width: 280px;
+            margin: 20px auto;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.4);
+        }
+        
+        .meter-value {
+            font-size: 4em;
+            font-weight: 700;
+            margin: 10px 0;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .meter-unit { font-size: 0.5em; opacity: 0.8; }
+
+        /* Area Grafik */
+        .chart-wrapper {
+            margin-top: 40px;
+            padding: 10px;
+            border: 1px solid #eee;
+            border-radius: 10px;
+        }
     </style>
 </head>
 <body>
+
     <div class="container">
-        <h1>Dashboard Simulasi Listrik</h1>
-        <p>Data ini di-update otomatis dari Google Colab.</p>
+        <h1>Monitoring Arus DC</h1>
+        <p>Integrasi Data Colab ke GitHub Pages</p>
         
-        <h3>Grafik Real-time</h3>
-        <img src="grafik_output.png" alt="Grafik Listrik">
-        
-        <br><br>
-        
-        <h3>10 Data Terakhir</h3>
-        <table class="dataframe table">
-  <thead>
-    <tr style="text-align: right;">
-      <th>Waktu</th>
-      <th>Tegangan</th>
-      <th>Arus</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>0.00000</td>
-      <td>0.000000</td>
-      <td>0.000000</td>
-    </tr>
-    <tr>
-      <td>0.00004</td>
-      <td>2.767296</td>
-      <td>0.027673</td>
-    </tr>
-    <tr>
-      <td>0.00008</td>
-      <td>5.534154</td>
-      <td>0.055342</td>
-    </tr>
-    <tr>
-      <td>0.00012</td>
-      <td>8.300136</td>
-      <td>0.083001</td>
-    </tr>
-    <tr>
-      <td>0.00016</td>
-      <td>11.064805</td>
-      <td>0.110648</td>
-    </tr>
-    <tr>
-      <td>0.00020</td>
-      <td>13.827724</td>
-      <td>0.138277</td>
-    </tr>
-    <tr>
-      <td>0.00024</td>
-      <td>16.588454</td>
-      <td>0.165885</td>
-    </tr>
-    <tr>
-      <td>0.00028</td>
-      <td>19.346560</td>
-      <td>0.193466</td>
-    </tr>
-    <tr>
-      <td>0.00032</td>
-      <td>22.101604</td>
-      <td>0.221016</td>
-    </tr>
-    <tr>
-      <td>0.00036</td>
-      <td>24.853152</td>
-      <td>0.248532</td>
-    </tr>
-  </tbody>
-</table>
-        
-        <br>
-        <p><a href="data_output.csv">Download Data Lengkap (CSV)</a></p>
+        <!-- Indikator Status Koneksi -->
+        <div>
+            Status Data: <span id="statusBadge" class="badge status-wait">Menghubungkan...</span>
+        </div>
+        <div style="font-size: 0.9em; color: #888;">
+            Update Terakhir: <span id="lastTime">-</span>
+        </div>
+
+        <!-- TAMPILAN METER -->
+        <div class="meter-card">
+            <div>SENSOR ARUS</div>
+            <div class="meter-value">
+                <span id="displayAmpere">--</span><span class="meter-unit"> A</span>
+            </div>
+            <div style="font-size: 0.9em;">Status: <span id="runStatus">...</span></div>
+        </div>
+
+        <!-- TAMPILAN GRAFIK -->
+        <div class="chart-wrapper">
+            <canvas id="myChart"></canvas>
+        </div>
     </div>
+
+    <script>
+        // --- KONFIGURASI UTAMA ---
+        // Nama file harus sama persis dengan file JSON yang ada di repo Anda
+        const DATA_SOURCE = 'data.json'; 
+
+        // Inisialisasi Grafik Chart.js
+        const ctx = document.getElementById('myChart').getContext('2d');
+        const myChart = new Chart(ctx, {
+            type: 'line', // Tipe grafik garis
+            data: {
+                labels: [], // Sumbu X (Waktu)
+                datasets: [{
+                    label: 'Arus Listrik (Ampere)',
+                    data: [], // Sumbu Y (Nilai)
+                    borderColor: '#3498db',
+                    backgroundColor: 'rgba(52, 152, 219, 0.2)',
+                    borderWidth: 3,
+                    pointRadius: 4,
+                    fill: true,
+                    tension: 0.3 // Membuat garis sedikit melengkung
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: false,
+                        suggestedMin: 4.0, // Batas visual bawah grafik
+                        suggestedMax: 6.0  // Batas visual atas grafik
+                    }
+                }
+            }
+        });
+
+        // --- FUNGSI FETCH DATA (PENGGANTI SIMULASI LOKAL) ---
+        async function updateDashboard() {
+            const statusBadge = document.getElementById('statusBadge');
+            
+            try {
+                // PENTING: Penambahan '?t=' + new Date().getTime() adalah trik
+                // agar browser tidak mengambil data lama (cache). Ini memaksa browser
+                // mengambil file data.json yang benar-benar baru.
+                const response = await fetch(DATA_SOURCE + '?t=' + new Date().getTime());
+
+                // Jika file tidak ditemukan atau error
+                if (!response.ok) {
+                    throw new Error("Gagal mengambil file data.json");
+                }
+
+                const data = await response.json();
+
+                // 1. Update Meteran Angka
+                document.getElementById('displayAmpere').innerText = parseFloat(data.current_dc).toFixed(2);
+                document.getElementById('lastTime').innerText = data.timestamp;
+                document.getElementById('runStatus').innerText = data.status;
+
+                // Update Status Badge jadi Hijau
+                statusBadge.innerText = "ONLINE (LIVE)";
+                statusBadge.className = "badge status-ok";
+
+                // 2. Update Grafik
+                const timeLabel = data.timestamp.split(' ')[1]; // Ambil jam saja (HH:MM:SS)
+                
+                // Cek apakah data ini baru atau sama dengan yang terakhir?
+                // (Agar grafik tidak 'jalan di tempat' jika data belum diupdate di GitHub)
+                const lastLabelInChart = myChart.data.labels[myChart.data.labels.length - 1];
+
+                if (lastLabelInChart !== timeLabel) {
+                    // Masukkan data baru ke array chart
+                    myChart.data.labels.push(timeLabel);
+                    myChart.data.datasets[0].data.push(data.current_dc);
+
+                    // Jaga agar grafik hanya menampilkan 10 data terakhir
+                    if (myChart.data.labels.length > 10) {
+                        myChart.data.labels.shift();
+                        myChart.data.datasets[0].data.shift();
+                    }
+
+                    myChart.update(); // Render ulang grafik
+                }
+
+            } catch (error) {
+                console.error("Error Fetching Data:", error);
+                // Update Status Badge jadi Merah jika error
+                statusBadge.innerText = "OFFLINE / ERROR";
+                statusBadge.className = "badge status-err";
+                document.getElementById('lastTime').innerText = "Gagal memuat data.";
+            }
+        }
+
+        // Jalankan fungsi update setiap 3 detik
+        // (Waktu ini bisa disesuaikan, tapi GitHub Pages butuh waktu update sekitar 30-60 detik setelah commit)
+        setInterval(updateDashboard, 3000);
+
+        // Panggil sekali saat halaman pertama kali dibuka
+        updateDashboard();
+    </script>
 </body>
 </html>
