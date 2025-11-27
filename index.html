@@ -1,0 +1,93 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dashboard Monitoring Listrik</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; text-align: center; }
+        h1 { color: #2c3e50; }
+        img { max-width: 100%; height: auto; border: 1px solid #ddd; border-radius: 5px; }
+        .container { max-width: 800px; margin: auto; }
+        table { margin: auto; border-collapse: collapse; width: 80%; }
+        th, td { padding: 8px; text-align: center; border-bottom: 1px solid #ddd; }
+        th { background-color: #f2f2f2; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Dashboard Simulasi Listrik</h1>
+        <p>Data ini di-update otomatis dari Google Colab.</p>
+        
+        <h3>Grafik Real-time</h3>
+        <img src="grafik_output.png" alt="Grafik Listrik">
+        
+        <br><br>
+        
+        <h3>10 Data Terakhir</h3>
+        <table class="dataframe table">
+  <thead>
+    <tr style="text-align: right;">
+      <th>Waktu</th>
+      <th>Tegangan</th>
+      <th>Arus</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>0.00000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+    </tr>
+    <tr>
+      <td>0.00004</td>
+      <td>2.767296</td>
+      <td>0.027673</td>
+    </tr>
+    <tr>
+      <td>0.00008</td>
+      <td>5.534154</td>
+      <td>0.055342</td>
+    </tr>
+    <tr>
+      <td>0.00012</td>
+      <td>8.300136</td>
+      <td>0.083001</td>
+    </tr>
+    <tr>
+      <td>0.00016</td>
+      <td>11.064805</td>
+      <td>0.110648</td>
+    </tr>
+    <tr>
+      <td>0.00020</td>
+      <td>13.827724</td>
+      <td>0.138277</td>
+    </tr>
+    <tr>
+      <td>0.00024</td>
+      <td>16.588454</td>
+      <td>0.165885</td>
+    </tr>
+    <tr>
+      <td>0.00028</td>
+      <td>19.346560</td>
+      <td>0.193466</td>
+    </tr>
+    <tr>
+      <td>0.00032</td>
+      <td>22.101604</td>
+      <td>0.221016</td>
+    </tr>
+    <tr>
+      <td>0.00036</td>
+      <td>24.853152</td>
+      <td>0.248532</td>
+    </tr>
+  </tbody>
+</table>
+        
+        <br>
+        <p><a href="data_output.csv">Download Data Lengkap (CSV)</a></p>
+    </div>
+</body>
+</html>
